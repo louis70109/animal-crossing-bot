@@ -1,8 +1,10 @@
+const { router, text } = require('bottender/router');
+
 const axios = require('axios').default;
 function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-module.exports = async function App(context) {
+async function searchList(context) {
   const contents = [];
   const roomList = [];
 
@@ -128,4 +130,8 @@ module.exports = async function App(context) {
     type: 'carousel',
     contents: contents,
   });
+}
+
+module.exports = async function App() {
+  return router([text(['查詢', '揪團'], searchList)]);
 };
