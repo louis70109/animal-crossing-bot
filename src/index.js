@@ -1,4 +1,5 @@
-const { router, text } = require('bottender/router');
+const { router, text, route } = require('bottender/router');
+const random = require('random-item');
 
 const axios = require('axios').default;
 function getRandom(min, max) {
@@ -132,6 +133,20 @@ async function searchList(context) {
   });
 }
 
+async function Unknown(context) {
+  await context.sendText(
+    random([
+      '抱歉～我不懂你在說什麼QQ',
+      '輸入 "查詢" 或 "揪團" 我會告訴你有誰開！',
+      '@&*#^!@# (壞掉狀)',
+      '好了好了，去打 Game 啦',
+      '功能開發中，保佑作者可以早下班',
+      '作者登出了 💤',
+      '繼續猜啊！',
+    ])
+  );
+}
+
 module.exports = async function App() {
-  return router([text(['查詢', '揪團'], searchList)]);
+  return router([text(['查詢', '揪團'], searchList), route('*', Unknown)]);
 };
