@@ -10,7 +10,7 @@ async function searchList(context) {
   const roomList = [];
 
   await axios
-    .get('https://api.ac-room.cc/list')
+    .get(`${process.env.API_URL}/list`)
     .then((res) => {
       const resp = res.data,
         roomLength = resp.length;
