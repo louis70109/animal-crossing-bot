@@ -126,7 +126,7 @@ async function searchList(context) {
     });
   }
 
-  await context.sendFlex('來看直播囉！', {
+  await context.sendFlex('揪起來揪起來！', {
     type: 'carousel',
     contents: contents,
   });
