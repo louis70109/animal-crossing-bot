@@ -1,43 +1,26 @@
 const { router, text, route } = require('bottender/router');
 const random = require('random-item');
+const axios = require('axios');
+const shuffle = require('lodash/shuffle');
 
-const axios = require('axios').default;
-function getRandom(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function makeStringLength30(str) {
+  if (str.length > 30) {
+    return `${str.slice(0, 27)}...`;
+  }
+
+  if (str.length < 30) {
+    return str.padEnd(30, ' ');
+  }
+
+  return str;
 }
-async function searchList(context) {
-  const contents = [];
-  const roomList = [];
 
-  await axios
-    .get(`${process.env.API_URL}/list`)
-    .then((res) => {
-      const resp = res.data,
-        roomLength = resp.length;
+function createFlexCarouselContents(rooms) {
+  return rooms.map((element) => {
+    const note = makeStringLength30(element.note);
+    const type = element.type ? element.type.join(' ') : '';
 
-      for (let i = 0; i < 10; i++) {
-        const rand = getRandom(0, roomLength);
-        roomList.push(resp[rand]);
-      }
-    })
-    .catch((err) => {
-      console.log('Error: ', err);
-      throw Error(err);
-    });
-  for (let j = 0; j < roomList.length; j++) {
-    const element = roomList[j];
-    let payload = element.note;
-    let note = '';
-    if (payload.length > 30) {
-      note = `${payload.slice(0, 27)} ...`;
-    } else if (payload.length < 30) {
-      note = payload.padEnd(30, ' ');
-    } else note = payload;
-    let types = '';
-    if (element.type) {
-      types = element.type.map((el) => (types += `${el} `));
-    }
-    contents.push({
+    return {
       type: 'bubble',
       body: {
         type: 'box',
@@ -62,7 +45,7 @@ async function searchList(context) {
           },
           {
             type: 'text',
-            text: `類型： ${types ? types.length > 0 : '房主沒有規定類型哦！'}`,
+            text: `類型： ${type ? type.length > 0 : '房主沒有規定類型哦！'}`,
             color: '#58AA29',
           },
           {
@@ -124,12 +107,19 @@ async function searchList(context) {
           },
         ],
       },
-    });
-  }
+    };
+  });
+}
+
+async function SearchList(context) {
+  const res = await axios.get(`${process.env.API_URL}/list`);
+
+  // Take 10 rooms randomly
+  const rooms = shuffle(res.data).slice(0, 10);
 
   await context.sendFlex('揪起來揪起來！', {
     type: 'carousel',
-    contents: contents,
+    contents: createFlexCarouselContents(rooms),
   });
 }
 
@@ -148,5 +138,5 @@ async function Unknown(context) {
 }
 
 module.exports = async function App() {
-  return router([text(['查詢', '揪團'], searchList), route('*', Unknown)]);
+  return router([text(['查詢', '揪團'], SearchList), route('*', Unknown)]);
 };
