@@ -2,6 +2,9 @@
 # 動森揪團仔
 
 輸入 `查詢` 或 `揪團` 我會給你隨機十個房間喔！
+
+> 其他功能陸續開放中...
+
 # 加入好友
 
 <img height="200" border="0" alt="QRcode" src="https://i.imgur.com/b1nlXa6.png">
