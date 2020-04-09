@@ -2,114 +2,8 @@ const { router, text, route } = require('bottender/router');
 const random = require('random-item');
 const axios = require('axios');
 const shuffle = require('lodash/shuffle');
-
-function makeStringLength30(str) {
-  if (str.length > 30) {
-    return `${str.slice(0, 27)}...`;
-  }
-
-  if (str.length < 30) {
-    return str.padEnd(30, ' ');
-  }
-
-  return str;
-}
-
-function createFlexCarouselContents(rooms) {
-  return rooms.map((element) => {
-    const note = makeStringLength30(element.note);
-    const type = element.type ? element.type.join(' ') : '';
-
-    return {
-      type: 'bubble',
-      body: {
-        type: 'box',
-        layout: 'vertical',
-        spacing: 'sm',
-        contents: [
-          {
-            type: 'text',
-            text: element.room ? element.room : ' ',
-            size: 'xl',
-            align: 'center',
-            gravity: 'top',
-            weight: 'bold',
-            color: '#AA1F1F',
-            wrap: false,
-          },
-          {
-            type: 'text',
-            text: element.name,
-            align: 'start',
-            wrap: false,
-          },
-          {
-            type: 'text',
-            text: `類型： ${type ? type.length > 0 : '房主沒有規定類型哦！'}`,
-            color: '#58AA29',
-          },
-          {
-            type: 'text',
-            text: `房間人數 ${element.guests}`,
-            flex: 0,
-            size: 'sm',
-            weight: 'bold',
-            color: '#139691',
-            wrap: true,
-          },
-          {
-            type: 'box',
-            layout: 'baseline',
-            margin: 'lg',
-            contents: [
-              {
-                type: 'text',
-                text: note,
-                flex: 7,
-                margin: 'xl',
-                size: 'lg',
-                align: 'start',
-                gravity: 'center',
-                weight: 'bold',
-                wrap: true,
-              },
-              {
-                type: 'spacer',
-              },
-            ],
-          },
-        ],
-      },
-      footer: {
-        type: 'box',
-        layout: 'vertical',
-        spacing: 'sm',
-        contents: [
-          {
-            type: 'button',
-            action: {
-              type: 'uri',
-              label: '揪團首頁',
-              uri: 'https://ac-room.cc/',
-            },
-            color: '#4657B6',
-            style: 'primary',
-          },
-          {
-            type: 'button',
-            action: {
-              type: 'uri',
-              label: '加入房間',
-              uri: `https://ac-room.cc/${element.id}`,
-            },
-            color: '#18AE6D',
-            style: 'primary',
-          },
-        ],
-      },
-    };
-  });
-}
+const quickReply = require('./quickReply');
+const { createFlexCarouselContents } = require('./utils');
 
 async function SearchList(context) {
   const res = await axios.get(`${process.env.API_URL}/list`);
@@ -117,26 +11,74 @@ async function SearchList(context) {
   // Take 10 rooms randomly
   const rooms = shuffle(res.data).slice(0, 10);
 
-  await context.sendFlex('揪起來揪起來！', {
-    type: 'carousel',
-    contents: createFlexCarouselContents(rooms),
-  });
+  await context.sendFlex(
+    '揪起來揪起來！',
+    {
+      type: 'carousel',
+      contents: createFlexCarouselContents(rooms),
+    },
+    quickReply(['揪團'])
+  );
 }
 
+async function SearchTags(context, { match }) {
+  const tag = match.groups.tag;
+
+  const res = await axios.get(`${process.env.API_URL}/list`);
+  const hasTypesRoom = res.data.filter((el) => el.types.includes(tag));
+
+  const rooms = shuffle(hasTypesRoom).slice(0, 10);
+  if (rooms.length === 0) {
+    await context.sendText(
+      `您想找的 ${tag} 找不到，要不要試試其他的呢？ ex: 尋找 其他`,
+      quickReply(['揪團'])
+    );
+  } else {
+    await context.sendFlex(
+      '幫你配對到囉！',
+      {
+        type: 'carousel',
+        contents: createFlexCarouselContents(rooms),
+      },
+      quickReply(['揪團', '救救我啊我救我'])
+    );
+  }
+}
+async function HelpMe(context) {
+  await context.sendText(
+    `😇範例:
+1. 揪團
+2. 尋找 代工
+第二點目前提供搜尋有👉 菜價, 櫻花, 流星, 摸摸, 代工, 交易, NPC, 其他`,
+    quickReply(['揪團', '救救我啊我救我'])
+  );
+}
 async function Unknown(context) {
   await context.sendText(
     random([
       '抱歉～我不懂你在說什麼QQ',
-      '輸入 "查詢" 或 "揪團" 我會告訴你有誰開！',
+      '輸入 "揪團" 或 "救救我啊我救我"，我就告訴你有誰開！',
       '@&*#^!@# (壞掉狀)',
       '好了好了，去打 Game 啦',
       '功能開發中，保佑作者可以早下班',
       '作者登出了 💤',
       '繼續猜啊！',
-    ])
+      '防疫期間妳各位還是繼續揪團好了😏',
+      '多喝水蛤，別說一些我看不懂的東西！！！',
+      '乖乖待在家裡別出門亂晃🤝',
+    ]),
+    quickReply(['揪團', '救救我啊我救我'])
   );
 }
 
 module.exports = async function App() {
-  return router([text(['查詢', '揪團'], SearchList), route('*', Unknown)]);
+  return router([
+    text(['救救我啊我救我', '揪團', '查詢'], SearchList),
+    text(
+      /^(尋找|查詢|收尋|搜尋|幫我找|想找|幫找|幫忙找|找)\s*(?<tag>[\s\S]+)/,
+      SearchTags
+    ),
+    text(['help', 'Help', '怎麼用', '/help'], HelpMe),
+    route('*', Unknown),
+  ]);
 };
