@@ -12,3 +12,13 @@
 掃描 QR code 或是點選我!!
 
 <a href="https://line.me/R/ti/p/%40217vobcy"><img height="50" border="0" alt="加入好友" src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png"></a>
+
+# Developer
+
+```
+git clone https://github.com/louis70109/animal-crossing-bot.git
+cd animal-crossing-bot/
+cp .env.sample .env  # 填入對應的 LINE key
+npm install
+npx bottender dev  # --console
+```
