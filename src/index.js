@@ -17,7 +17,7 @@ async function SearchList(context) {
       type: 'carousel',
       contents: createFlexCarouselContents(rooms),
     },
-    quickReply(['揪團'])
+    quickReply(['揪團', '救救我啊我救我', '怎麼用'])
   );
 }
 
@@ -40,7 +40,7 @@ async function SearchTags(context, { match }) {
         type: 'carousel',
         contents: createFlexCarouselContents(rooms),
       },
-      quickReply(['揪團', '救救我啊我救我'])
+      quickReply(['揪團', '救救我啊我救我', '怎麼用'])
     );
   }
 }
@@ -50,7 +50,7 @@ async function HelpMe(context) {
 1. 揪團
 2. 尋找 代工
 第二點目前提供搜尋有👉 菜價, 櫻花, 流星, 摸摸, 代工, 交易, NPC, 其他`,
-    quickReply(['揪團', '救救我啊我救我'])
+    quickReply(['揪團', '救救我啊我救我', '怎麼用'])
   );
 }
 async function Unknown(context) {
@@ -67,7 +67,7 @@ async function Unknown(context) {
       '多喝水蛤，別說一些我看不懂的東西！！！',
       '乖乖待在家裡別出門亂晃🤝',
     ]),
-    quickReply(['揪團', '救救我啊我救我'])
+    quickReply(['揪團', '救救我啊我救我', '怎麼用'])
   );
 }
 
