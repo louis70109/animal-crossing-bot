@@ -2,15 +2,14 @@ const { router, text, route } = require('bottender/router');
 const random = require('random-item');
 const axios = require('axios');
 const shuffle = require('lodash/shuffle');
-const quickReply = require('./quickReply');
 const { createFlexCarouselContents } = require('./utils');
+const quickReply = require('./quickReply');
 
 async function SearchList(context) {
   const res = await axios.get(`${process.env.API_URL}/list`);
 
   // Take 10 rooms randomly
   const rooms = shuffle(res.data).slice(0, 10);
-
   await context.sendFlex(
     '揪起來揪起來！',
     {
@@ -44,6 +43,7 @@ async function SearchTags(context, { match }) {
     );
   }
 }
+
 async function HelpMe(context) {
   await context.sendText(
     `😇範例:
@@ -53,6 +53,7 @@ async function HelpMe(context) {
     quickReply(['揪團', '救救我啊我救我', '怎麼用'])
   );
 }
+
 async function Unknown(context) {
   await context.sendText(
     random([

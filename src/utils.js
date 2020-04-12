@@ -109,7 +109,7 @@ function createFlexCarouselContents(rooms) {
               },
               {
                 type: 'text',
-                text: ' ',
+                text: ' / ',
                 flex: 0,
                 size: 'md',
                 weight: 'bold',
