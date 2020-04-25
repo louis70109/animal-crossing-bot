@@ -7,9 +7,9 @@ const quickReply = require('./quickReply');
 
 async function SearchList(context) {
   const res = await axios.get(`${process.env.API_URL}/list`);
-
   // Take 10 rooms randomly
-  const rooms = shuffle(res.data).slice(0, 10);
+  const rooms = shuffle(res.data.list).slice(0, 10);
+  await context.sendText('讓我幫你找找...🌀');
   await context.sendFlex(
     '揪起來揪起來！',
     {
@@ -24,7 +24,7 @@ async function SearchTags(context, { match }) {
   const tag = match.groups.tag;
 
   const res = await axios.get(`${process.env.API_URL}/list`);
-  const hasTypesRoom = res.data.filter((el) => el.types.includes(tag));
+  const hasTypesRoom = res.data.list.filter((el) => el.types.includes(tag));
 
   const rooms = shuffle(hasTypesRoom).slice(0, 10);
   if (rooms.length === 0) {
@@ -33,6 +33,7 @@ async function SearchTags(context, { match }) {
       quickReply(['揪團'])
     );
   } else {
+    await context.sendText('幫你配對到囉‼️');
     await context.sendFlex(
       '幫你配對到囉！',
       {
